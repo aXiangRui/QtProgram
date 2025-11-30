@@ -26,18 +26,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         clientwidget.cpp \
-    ../login_registr/login_register.cpp \
-    ../login_registr/regis.cpp \
-    ../Qu/mainwindow.cpp
 
 HEADERS += \
         clientwidget.h \
-    ../login_registr/login_register.h \
-    ../login_registr/regis.h \
-    ../Qu/mainwindow.h
 
 FORMS += \
         clientwidget.ui \
-    ../login_registr/login_register.ui \
-    ../login_registr/regis.ui \
-    ../Qu/mainwindow.ui
