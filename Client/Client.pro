@@ -1,10 +1,10 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2025-11-26T23:32:54
+# Project created by QtCreator 2025-11-30T14:55:25
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network websockets widgets sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -25,19 +25,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        clientwidget.cpp \
-    ../login_registr/login_register.cpp \
-    ../login_registr/regis.cpp \
-    ../Qu/mainwindow.cpp
+        clientwindow.cpp \
+    tcpclient.cpp \
+    httpclient.cpp \
+    websocketclient.cpp
 
 HEADERS += \
-        clientwidget.h \
-    ../login_registr/login_register.h \
-    ../login_registr/regis.h \
-    ../Qu/mainwindow.h
+        clientwindow.h \
+    tcpclient.h \
+    httpclient.h \
+    websocketclient.h
 
 FORMS += \
-        clientwidget.ui \
-    ../login_registr/login_register.ui \
-    ../login_registr/regis.ui \
-    ../Qu/mainwindow.ui
+        clientwindow.ui
