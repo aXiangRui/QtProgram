@@ -1,11 +1,10 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2025-11-25T12:24:44
+# Project created by QtCreator 2025-11-30T14:36:25
 #
 #-------------------------------------------------
 
-QT       += core gui network
-QT       += xml
+QT       += core gui network websockets widgets sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,12 +25,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-    clienthandler.cpp \
-    serverwidget.cpp
+        serverwindow.cpp \
+    threadpool.cpp \
+    tcpserver.cpp \
+    httpserver.cpp \
+    websocketserver.cpp
 
 HEADERS += \
-    clienthandler.h \
-    serverwidget.h
+        serverwindow.h \
+    threadpool.h \
+    databasehelper.h \
+    tcpserver.h \
+    httpserver.h \
+    websocketserver.h
 
 FORMS += \
-    serverwidget.ui
+        serverwindow.ui
