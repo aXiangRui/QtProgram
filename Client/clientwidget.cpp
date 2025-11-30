@@ -7,7 +7,6 @@
 #include <QApplication>  // 新增：用于设置应用程序退出规则
 
 // ------------------------ 登录界面头文件（根据实际路径调整）,可以增加相应的界面/功能时增加其头文件 -----------------------------
-// #include<../login_registr/login_register.h>
 
 
 
@@ -176,12 +175,12 @@ void ClientWidget::onConnected()
     qDebug()<<"连接成功，定时刷新功能暂停";
 
     // --------------- 跳转到登录界面（可在此处添加各种页面的切换）---------------------
-    // login_register *w = new login_register();
-    // w->show();
-    // this->hide();
+//    login_register *w = new login_register();
+//    w->show();
+//    this->hide();
     // --------------------------------------------------------------------------
     appendMsg("已成功连接到服务器");
-    // this->hide();
+//    this->hide();
 }
 
 // 断开连接处理
