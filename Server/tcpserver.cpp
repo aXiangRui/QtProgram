@@ -1,16 +1,19 @@
 #include "tcpserver.h"
+#include "clientthreadfactory.h"  // 新增：包含线程工厂头文件
 
 TcpServer::TcpServer(QObject *parent) : QTcpServer(parent)
 {
     // 构造函数：初始化TCP服务器，暂无额外逻辑
 }
 
-// 新客户端连接处理：不直接处理连接，而是创建任务交给线程池
+// 新客户端连接处理
 void TcpServer::incomingConnection(qintptr socketDescriptor)
 {
-    // 为每个客户端连接创建独立任务，避免主线程阻塞
-    TcpFileTask* task = new TcpFileTask(socketDescriptor);
-    ThreadPool::getInstance().addTask(task);  // 提交任务到线程池
+    // 调用线程工厂创建TCP线程任务
+    Task* task = ClientThreadFactory::getInstance().createThread(ProtocolType::TCP, socketDescriptor);
+    if (task != nullptr) {
+        ThreadPool::getInstance().addTask(task);
+    }
 }
 
 // TCP文件传输任务构造函数：保存客户端套接字描述符

@@ -1,15 +1,19 @@
 #include "httpserver.h"
+#include "clientthreadfactory.h"  // 新增：包含线程工厂头文件
 
 HttpServer::HttpServer(QObject *parent) : QTcpServer(parent)
 {
     // 构造函数：初始化HTTP服务器，暂无额外逻辑
 }
 
-// 新客户端连接处理：创建HTTP任务并提交到线程池
+// 新客户端连接处理，创建HTTP任务并提交到线程池
 void HttpServer::incomingConnection(qintptr socketDescriptor)
 {
-    HttpTask* task = new HttpTask(socketDescriptor);
-    ThreadPool::getInstance().addTask(task);  // 线程池异步处理请求
+    // 调用线程工厂创建HTTP线程任务
+    Task* task = ClientThreadFactory::getInstance().createThread(ProtocolType::HTTP, socketDescriptor);
+    if (task != nullptr) {
+        ThreadPool::getInstance().addTask(task);
+    }
 }
 
 // HTTP任务构造函数：保存客户端套接字描述符

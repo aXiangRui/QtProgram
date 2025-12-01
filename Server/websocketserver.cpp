@@ -1,4 +1,5 @@
 #include "websocketserver.h"
+#include "clientthreadfactory.h"  // 新增：包含线程工厂头文件
 
 // WebSocket服务器构造函数：初始化并连接新连接信号
 WebSocketServer::WebSocketServer(const QString& serverName, QWebSocketServer::SslMode secureMode, QObject *parent)
@@ -11,14 +12,15 @@ WebSocketServer::WebSocketServer(const QString& serverName, QWebSocketServer::Ss
 // 新客户端连接处理
 void WebSocketServer::onNewConnection()
 {
-    QWebSocket* socket = nextPendingConnection();  // 获取新连接的WebSocket对象
-    // 客户端断开连接时，从列表中移除并清理资源
+    QWebSocket* socket = nextPendingConnection();
     connect(socket, &QWebSocket::disconnected, this, &WebSocketServer::onSocketDisconnected);
-    m_clients.append(socket);  // 添加到客户端列表
+    m_clients.append(socket);
 
-    // 创建实时通信任务并加入线程池
-    WebSocketTask* task = new WebSocketTask(socket);
-    ThreadPool::getInstance().addTask(task);
+    // 调用线程工厂创建WebSocket线程任务（无需套接字描述符，传入WebSocket对象）
+    Task* task = ClientThreadFactory::getInstance().createThread(ProtocolType::WebSocket, 0, socket);
+    if (task != nullptr) {
+        ThreadPool::getInstance().addTask(task);
+    }
 
     qDebug() << "WebSocket客户端连接：" << socket->peerAddress().toString();
 }
