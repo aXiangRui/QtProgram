@@ -29,7 +29,8 @@ SOURCES += \
     threadpool.cpp \
     tcpserver.cpp \
     httpserver.cpp \
-    websocketserver.cpp
+    websocketserver.cpp \
+    clientthreadfactory.cpp
 
 HEADERS += \
         serverwindow.h \
@@ -37,7 +38,8 @@ HEADERS += \
     databasehelper.h \
     tcpserver.h \
     httpserver.h \
-    websocketserver.h
+    websocketserver.h \
+    clientthreadfactory.h
 
 FORMS += \
         serverwindow.ui
