@@ -1,22 +1,29 @@
 #include "httpserver.h"
+#include "clientthreadfactory.h"  // 新增：包含线程工厂头文件
 
 HttpServer::HttpServer(QObject *parent) : QTcpServer(parent)
 {
+    // 构造函数：初始化HTTP服务器，暂无额外逻辑
 }
 
+// 新客户端连接处理，创建HTTP任务并提交到线程池
 void HttpServer::incomingConnection(qintptr socketDescriptor)
 {
-    // 新HTTP请求，创建任务并加入线程池
-    HttpTask* task = new HttpTask(socketDescriptor);
-    ThreadPool::getInstance().addTask(task);
+    // 调用线程工厂创建HTTP线程任务
+    Task* task = ClientThreadFactory::getInstance().createThread(ProtocolType::HTTP, socketDescriptor);
+    if (task != nullptr) {
+        ThreadPool::getInstance().addTask(task);
+    }
 }
 
+// HTTP任务构造函数：保存客户端套接字描述符
 HttpTask::HttpTask(qintptr socketDescriptor, QObject *parent)
     : Task(), m_socketDescriptor(socketDescriptor)
 {
-    Q_UNUSED(parent); // 新增
+    Q_UNUSED(parent);  // 标记未使用的参数
 }
 
+// 任务执行逻辑：读取HTTP请求并处理
 void HttpTask::run()
 {
     QTcpSocket socket;
@@ -25,26 +32,28 @@ void HttpTask::run()
         return;
     }
 
-    // 读取HTTP请求
+    // 读取HTTP请求数据（超时1秒）
     QByteArray requestData;
     while (socket.waitForReadyRead(1000)) {
         requestData += socket.readAll();
     }
 
     qDebug() << "收到HTTP请求：" << requestData;
-    handleHttpRequest(QString(requestData), socket);
+    handleHttpRequest(QString(requestData), socket);  // 处理请求
 
-    socket.disconnectFromHost();
+    socket.disconnectFromHost();  // 处理完成后断开连接
 }
 
+// 解析并处理HTTP请求
 void HttpTask::handleHttpRequest(const QString& request, QTcpSocket& socket)
 {
-    // 解析HTTP请求路径（示例：/book /user /cart /order /collect）
+    // 解析HTTP请求路径（例如：GET /book HTTP/1.1 中的路径为/book）
     QString path = request.split(" ").at(1);
+    // 构建HTTP响应头（200 OK表示成功）
     QString response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
 
     // 【HTTP业务扩展位置】
-    // 后续需实现各业务接口，结合DatabaseHelper操作数据库
+    // 根据请求路径分发不同业务（后续需对接数据库实现具体逻辑）
     if (path == "/book") {
         // 图书浏览业务：查询数据库返回图书列表
         response += "<h1>图书浏览接口（后续实现）</h1>";
@@ -61,9 +70,10 @@ void HttpTask::handleHttpRequest(const QString& request, QTcpSocket& socket)
         // 收藏业务：添加/取消/查询收藏
         response += "<h1>收藏接口（后续实现）</h1>";
     } else {
+        // 未知路径返回404
         response += "<h1>404 Not Found</h1>";
     }
 
-    // 发送HTTP响应
+    // 发送HTTP响应给客户端
     socket.write(response.toUtf8());
 }
