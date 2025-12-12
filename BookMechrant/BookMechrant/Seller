@@ -1,0 +1,22 @@
+#ifndef BOOKMECHRANT_H
+#define BOOKMECHRANT_H
+
+#include <QMainWindow>
+
+namespace Ui {
+class BookMechrant;
+}
+
+class BookMechrant : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit BookMechrant(QWidget *parent = 0);
+    ~BookMechrant();
+
+private:
+    Ui::BookMechrant *ui;
+};
+
+#endif // BOOKMECHRANT_H
