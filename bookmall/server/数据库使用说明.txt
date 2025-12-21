@@ -1,0 +1,184 @@
+========================================
+图书管理系统 - MySQL数据库使用说明
+========================================
+
+一、快速开始
+========================================
+
+1. 安装MySQL数据库（如果未安装）
+   - Windows: 下载并安装 MySQL Community Server
+   - 默认用户名: root
+   - 密码: 安装时设置（建议设为空或记住密码）
+
+2. 创建数据库
+   打开命令行执行:
+   
+   mysql -u root -p < init_database.sql
+   
+   或手动执行:
+   mysql -u root -p
+   CREATE DATABASE bookstore CHARACTER SET utf8mb4;
+
+3. 修改数据库密码（如果需要）
+   编辑 main.cpp 文件，找到：
+   
+   Database::getInstance().initConnection("localhost", 3306, "bookstore", "root", "")
+   
+   最后一个参数 "" 改为你的密码，例如：
+   Database::getInstance().initConnection("localhost", 3306, "bookstore", "root", "123456")
+
+4. 编译运行
+   - 打开Qt Creator
+   - 编译并运行Server项目
+   - 查看控制台输出，确认数据库连接成功
+
+二、核心功能
+========================================
+
+✓ 请求日志记录
+  - 自动记录所有客户端请求
+  - 记录客户端IP、端口、请求内容、响应结果
+  - 按分类存储（user/admin/seller/book/order/cart）
+
+✓ 数据持久化
+  - 用户信息（买家）
+  - 商家信息
+  - 图书信息
+  - 订单信息
+  - 购物车
+  - 会员信息
+
+三、数据库表结构
+========================================
+
+1. request_logs - 请求日志表 ⭐核心功能⭐
+   记录所有API请求的详细信息
+   - id: 日志ID
+   - timestamp: 请求时间
+   - client_ip: 客户端IP
+   - client_port: 客户端端口
+   - action: 请求动作
+   - request_data: 请求数据(JSON)
+   - response_data: 响应数据(JSON)
+   - success: 是否成功
+   - category: 请求分类
+
+2. users - 买家用户表
+3. sellers - 商家表（默认账号: seller/123456）
+4. books - 图书表
+5. orders - 订单表
+6. cart - 购物车表
+7. members - 会员表
+
+四、请求分类
+========================================
+
+请求按以下分类记录：
+
+user   - 用户相关（login, register）
+admin  - 管理员操作（admin开头的请求）
+seller - 商家操作（seller开头的请求）
+book   - 图书相关（getAllBooks, searchBooks等）
+order  - 订单相关（createOrder, payOrder等）
+cart   - 购物车相关（addToCart, getCart）
+
+五、查询请求日志
+========================================
+
+1. 查询所有日志
+   SELECT * FROM request_logs ORDER BY timestamp DESC LIMIT 100;
+
+2. 按分类查询
+   SELECT * FROM request_logs WHERE category = 'user' ORDER BY timestamp DESC;
+   SELECT * FROM request_logs WHERE category = 'order' ORDER BY timestamp DESC;
+
+3. 查询失败的请求
+   SELECT * FROM request_logs WHERE success = 0 ORDER BY timestamp DESC;
+
+4. 查询今天的请求
+   SELECT * FROM request_logs WHERE DATE(timestamp) = CURDATE() ORDER BY timestamp DESC;
+
+5. 统计各类请求数量
+   SELECT category, COUNT(*) as count FROM request_logs GROUP BY category;
+
+6. 统计各操作的成功率
+   SELECT action, 
+          COUNT(*) as total,
+          SUM(success) as success_count,
+          ROUND(SUM(success)/COUNT(*)*100, 2) as success_rate
+   FROM request_logs 
+   GROUP BY action;
+
+六、开关设置
+========================================
+
+在 tcpserver.cpp 第9行可以切换数据库/内存模式：
+
+#define USE_DATABASE true   // 使用MySQL数据库
+#define USE_DATABASE false  // 使用内存模式（重启后数据丢失）
+
+七、API接口 - 查看请求日志
+========================================
+
+管理员可以通过以下API查看请求日志：
+
+请求：
+{
+    "action": "adminGetRequestLogs",
+    "limit": 100,           // 可选，默认100条
+    "category": "user"      // 可选，筛选分类
+}
+
+响应：
+{
+    "success": true,
+    "message": "获取请求日志成功",
+    "logs": [...],
+    "total": 50
+}
+
+八、常见问题
+========================================
+
+Q1: 连接数据库失败
+A: 检查：
+   - MySQL服务是否启动
+   - 数据库名称是否为 bookstore
+   - 用户名密码是否正确
+   - 防火墙是否阻止3306端口
+
+Q2: 中文乱码
+A: 确保数据库使用 utf8mb4 字符集
+
+Q3: 程序启动提示数据库连接失败
+A: 程序会自动切换到内存模式，功能正常但数据不会保存
+
+Q4: 如何备份数据
+A: 使用mysqldump命令：
+   mysqldump -u root -p bookstore > backup.sql
+
+Q5: 如何清理旧日志
+A: 定期执行：
+   DELETE FROM request_logs WHERE timestamp < DATE_SUB(NOW(), INTERVAL 30 DAY);
+
+九、性能建议
+========================================
+
+1. 定期清理request_logs表（建议保留30天内的日志）
+2. 为常用查询字段添加索引（已默认添加）
+3. 大数据量时考虑使用数据库连接池
+
+========================================
+技术支持
+========================================
+
+如有问题，请检查：
+1. 服务器控制台输出（有详细的日志信息）
+2. MySQL错误日志
+3. Qt Creator输出窗口
+
+默认商家账号: seller / 123456
+可用于测试商家端功能
+
+========================================
+

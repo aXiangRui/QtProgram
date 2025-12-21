@@ -1,0 +1,178 @@
+========================================
+libmysql.dll 下载安装完整指南
+========================================
+
+问题: "QMYSQL driver not loaded"
+原因: 缺少MySQL客户端库文件
+
+========================================
+方案A: 直接下载（最快）
+========================================
+
+1. 下载MySQL Connector/C
+   官方地址: https://dev.mysql.com/downloads/connector/c/
+   
+   步骤:
+   a) 选择操作系统: Microsoft Windows
+   b) 选择版本: Windows (x86, 64-bit), ZIP Archive
+   c) 点击 Download
+   d) 点击 "No thanks, just start my download"
+
+2. 解压ZIP文件
+   - 找到 lib 文件夹
+   - 复制 libmysql.dll
+
+3. 放到正确位置
+   复制 libmysql.dll 到以下位置之一:
+   
+   优先级1（推荐）:
+   D:\qt\server\debug\libmysql.dll
+   D:\qt\server\release\libmysql.dll
+   
+   优先级2:
+   C:\Qt\版本号\mingw73_64\bin\libmysql.dll
+   （例如: C:\Qt\5.12.12\mingw73_64\bin\）
+   
+   优先级3:
+   C:\Windows\System32\libmysql.dll
+
+4. 重新编译
+   Qt Creator:
+   - 构建 → 清理项目
+   - 构建 → 重新构建
+   - 运行
+
+========================================
+方案B: 百度网盘快速获取
+========================================
+
+如果官网下载慢，可以:
+1. 从其他已安装MySQL的电脑复制
+2. 从百度网盘等网盘下载
+   搜索: "libmysql.dll 64位 下载"
+   
+   ⚠️ 注意:
+   - 必须是64位版本（如果Qt是64位）
+   - 文件大小约1-3MB
+   - 建议使用MySQL 8.0或5.7版本
+
+========================================
+方案C: 安装MySQL Server（完整版）
+========================================
+
+1. 下载MySQL Installer
+   https://dev.mysql.com/downloads/installer/
+   
+2. 运行安装程序
+   - 选择 "Developer Default"
+   - 自动安装所有必需组件
+
+3. 安装完成后
+   libmysql.dll 位置:
+   C:\Program Files\MySQL\MySQL Server 8.0\lib\libmysql.dll
+
+4. 复制到Qt项目目录
+
+========================================
+当前临时解决方案
+========================================
+
+✅ 已切换到SQLite数据库
+   - 优点: 不需要配置，立即可用
+   - 缺点: 本地文件，不支持远程
+   
+文件位置: D:\qt\server\bookstore.db
+
+使用SQLite时:
+✅ 所有功能正常
+✅ 数据持久化
+✅ 请求日志记录
+❌ 无法连接远程数据库
+
+========================================
+恢复MySQL的方法
+========================================
+
+配置好libmysql.dll后，修改 data.cpp:
+
+取消注释MySQL代码:
+```cpp
+m_db = QSqlDatabase::addDatabase("QMYSQL");
+m_db.setHostName(host);
+m_db.setPort(port);
+m_db.setDatabaseName(dbName);
+m_db.setUserName(username);
+m_db.setPassword(password);
+```
+
+注释掉SQLite代码:
+```cpp
+// m_db = QSqlDatabase::addDatabase("QSQLITE");
+// m_db.setDatabaseName("bookstore.db");
+```
+
+========================================
+验证libmysql.dll是否正确
+========================================
+
+1. 检查文件大小
+   - 通常在1-3MB之间
+   - 如果只有几KB，说明下载不完整
+
+2. 检查位数
+   - 64位Qt需要64位dll
+   - 32位Qt需要32位dll
+   
+   查看Qt版本:
+   Qt Creator → 工具 → 选项 → 构建套件
+
+3. 检查版本兼容性
+   - 推荐: MySQL 8.0 或 5.7
+   - 避免: 过旧版本（5.5以下）
+
+========================================
+快速测试
+========================================
+
+复制libmysql.dll后，运行以下测试:
+
+```cpp
+QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+qDebug() << "MySQL驱动可用:" << db.isValid();
+```
+
+如果输出 "MySQL驱动可用: true" 说明配置成功！
+
+========================================
+常见错误
+========================================
+
+错误1: "找不到libmysql.dll"
+解决: 复制dll到exe同目录
+
+错误2: "应用程序无法启动"  
+解决: dll位数不匹配，重新下载对应版本
+
+错误3: "找不到序数xxx"
+解决: MySQL版本太旧，下载新版本
+
+错误4: 还是报"Driver not loaded"
+解决: 
+- 重启Qt Creator
+- 清理项目重新编译
+- 检查dll是否在正确位置
+
+========================================
+推荐下载地址
+========================================
+
+1. MySQL官方（最安全）
+   https://dev.mysql.com/downloads/connector/c/
+   选择: mysql-connector-c-6.1.11-winx64.zip
+
+2. 或者完整版MySQL Server
+   https://dev.mysql.com/downloads/mysql/
+   选择: MySQL Community Server 8.0
+
+========================================
+

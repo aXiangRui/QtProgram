@@ -1,0 +1,33 @@
+========================================
+临时使用SQLite代替MySQL
+========================================
+
+如果MySQL驱动配置有问题，可以临时使用SQLite（内置驱动）：
+
+修改 data.cpp 中的 initConnection 函数：
+
+原代码：
+-------
+m_db = QSqlDatabase::addDatabase("QMYSQL");
+m_db.setHostName(host);
+m_db.setPort(port);
+m_db.setDatabaseName(dbName);
+m_db.setUserName(username);
+m_db.setPassword(password);
+
+改为SQLite：
+-----------
+m_db = QSqlDatabase::addDatabase("QSQLITE");
+m_db.setDatabaseName("bookstore.db");  // 本地文件
+
+优点：
+✓ 不需要额外配置
+✓ 不需要MySQL服务器
+✓ 适合开发测试
+
+缺点：
+✗ 不支持远程连接
+✗ 并发性能较差
+
+========================================
+
